@@ -1,43 +1,28 @@
 using NUnit.Framework;
-using System.IO;
-using System.Text.Json;
 using StatisticalTableParser.Statistics;
-using StatisticalTableParser.Parser;
 
 namespace StatisticalTableParser.Test
 {
-  public class TableParseTests
-  {
-    private string[] AllTables = new[]{
-      "double-pure-table.txt",
-      "jittered-multiline-table.txt",
-      "jittered-table.txt",
-      "pure-multiline-table.txt",
-      "pure-table.txt"
-    };
-
-    [Test]
-    public void Test1()
+    public class TableParseTests
     {
+        private const string doublePureTable = "double-pure-table.txt";
+        private const string jitteredMultiTable = "jittered-multiline-table.txt";
+        private const string jitteredTable = "jittered-table.txt";
+        private const string pureMultiTable = "pure-multiline-table.txt";
+        private const string pureTable = "pure-table.txt";
 
-      foreach (var tableName in AllTables)
-      {
-        var path = TestContext.CurrentContext.TestDirectory + "../../../../resources/" + tableName;
-
-        var stats = TableStatistics.Read(path);
-        TestContext.Progress.WriteLine(JsonSerializer.Serialize(stats.Stats));
-        using (var sr = new StreamReader(path))
+        [Test]
+        [TestCase(doublePureTable, new[] { 0, 8, 20 })]
+        [TestCase(jitteredMultiTable, new[] { 0, 7, 18 })]
+        [TestCase(jitteredTable, new[] { 0, 8, 20 })]
+        [TestCase(pureMultiTable, new[] { 0, 7, 18 })]
+        [TestCase(pureTable, new[] { 0, 8, 20 })]
+        public void TestColumns(string tableName, int[] expectedColumns)
         {
-          var state = new ParserState();
-          while (sr.Peek() >= 0)
-          {
-            var line = sr.ReadLine();
-
-            TestContext.Progress.WriteLine(line);
-          }
-          
+            var path = TestContext.CurrentContext.TestDirectory + "../../../../resources/" + tableName;
+            var stats = TableStatistics.Read(path);
+            var columns = TableStatistics.Columns(stats, 2);
+            CollectionAssert.AreEqual(expectedColumns, columns);
         }
-      }
     }
-  }
 }
