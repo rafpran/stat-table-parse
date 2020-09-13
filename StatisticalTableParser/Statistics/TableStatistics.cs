@@ -1,74 +1,70 @@
-using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 
 namespace StatisticalTableParser.Statistics
 {
-    public class TableStatistics
+  public class TableStatistics
+  {
+    internal List<int> Stats { get; } = new List<int>();
+
+    public void Read(string path)
     {
-        public List<int> Stats { get; } = new List<int>();
+      using (var sr = new StreamReader(path))
+      {
 
-        public static TableStatistics Read(string path)
+        while (sr.Peek() >= 0)
         {
-            var stats = new TableStatistics();
-            using (var sr = new StreamReader(path))
-            {
-
-                while (sr.Peek() >= 0)
-                {
-                    var line = sr.ReadLine();
-                    AddLine(stats, line);
-
-                }
-            }
-            return stats;
+          var line = sr.ReadLine();
+          AddLine(line);
         }
-
-        internal static void AddLine(TableStatistics stats, string line)
-        {
-            var trimmed = line.Trim();
-            EnsureLength(stats.Stats, trimmed.Length);
-            for (var i = 0; i < trimmed.Length; i++)
-            {
-                var ch = trimmed[i];
-                if (!char.IsWhiteSpace(ch))
-                {
-                    stats.Stats[i]++;
-                }
-            }
-        }
-
-        internal static void EnsureLength(List<int> s, int length)
-        {
-            if (s.Count < length)
-            {
-                s.AddRange(Enumerable.Range(0, length - s.Count).Select( _ => 0));
-            }
-        }
-
-        public static List<int> Columns(TableStatistics stats, int dist)
-        {
-            var result = new List<int> { 0 };
-            var whitespacesLength = 0;
-            for (int i = 0; i < stats.Stats.Count; i++)
-            {
-                int val = stats.Stats[i];
-                if (val == 0)
-                {
-                    whitespacesLength++;
-                }
-                else
-                {
-                    whitespacesLength = 0;
-                }
-                if (whitespacesLength == dist)
-                {
-                    result.Add(i - dist + 1);
-                }
-            }
-
-            return result;
-        }
+      }
     }
+
+    internal void AddLine(string line)
+    {
+      var trimmed = line.Trim();
+      Stats.EnsureLength(trimmed.Length);
+      for (var i = 0; i < trimmed.Length; i++)
+      {
+        var ch = trimmed[i];
+        if (!char.IsWhiteSpace(ch))
+        {
+          Stats[i]++;
+        }
+      }
+    }
+
+
+    public List<TableColumn> Columns(int dist)
+    {
+      var result = new List<TableColumn>();
+      var whitespacesLength = 0;
+      var previous = 0;
+      for (int i = 0; i < Stats.Count; i++)
+      {
+        int val = Stats[i];
+        if (val == 0)
+        {
+          whitespacesLength++;
+        }
+        else
+        {
+          whitespacesLength = 0;
+        }
+        if (whitespacesLength == dist)
+        {
+
+          var end = i - dist + 1;
+          result.Add(new TableColumn(previous, end));
+          previous = end;
+        }
+      }
+
+      if (previous < Stats.Count){
+        result.Add(new TableColumn(previous, Stats.Count - 1));
+      }
+
+      return result;
+    }
+  }
 }

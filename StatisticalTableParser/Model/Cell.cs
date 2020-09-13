@@ -2,6 +2,11 @@ namespace StatisticalTableParser.Model
 {
   public class Cell
   {
-    public string Value { get; set; }
+    public Cell(string v)
+    {
+      this.Value = v;
+    }
+
+    public string Value { get; }
   }
 }

@@ -1,5 +1,5 @@
-Header 1    Header 2    Header 3           
-Row 11      Row 12      Row 13              
-Row 21      Row 22      Row 23            
-Row 31      Row 32      Row 33            
-Row 41      Row 42      Row 43              
+Header 1    Header 2    Header 3
+Row 11      Row 12      Row 13
+Row 21      Row 22      Row 23
+Row 31      Row 32      Row 33
+Row 41      Row 42      Row 43
